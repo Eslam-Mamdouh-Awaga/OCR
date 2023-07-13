@@ -1,0 +1,164 @@
+from flask import Flask, request, jsonify
+import pytesseract
+from PIL import Image
+from flask_cors import CORS
+import re
+
+class OCR:
+    def __init__(self, image_path):
+        self.image_path = image_path
+
+    def recognize_text(self):
+        text = pytesseract.image_to_string(Image.open(self.image_path))
+        return text.strip()
+    # def recognize_text(self):
+    #     text = pytesseract.image_to_string(Image.open(self.image_path))
+    #     obj_type = self.get_object_type(text)
+    #     return text.strip(), obj_type.strip()
+
+    # def get_object_type(self, text):
+    #     if 'Car' in text:
+    #         return 'Car'
+    #     elif 'Apartment' in text:
+    #         return 'Apartment'
+    #     else:
+    #         return ''
+
+app = Flask(__name__)
+cors = CORS(app)
+
+@app.route('/scan', methods=['POST'])
+def ocr():
+
+
+    if 'image' not in request.files:
+        return jsonify({'error': 'No image uploaded'}), 400
+
+    image = request.files['image']
+    image_path = 'temp.jpg' # Save the image to a temporary file
+    image.save(image_path)
+
+    ocr = OCR(image_path)
+    text = ocr.recognize_text()
+
+    # Define the regex patterns to match the car contract information
+    contract_type_re = r'^\s*(Sale|Rent)\b'
+    startDate_re = r'(Contract Start Date|Sale Date):\s*(.+)\s*'
+    endDate_re = r'Contract End Date:\s*(.+)\s*'
+    VehicleId_re = r'Vehicle Id:\s*(.+)\s*'
+    VehicleLicense_re = r'Vehicle License:\s*(.+)\s*'
+    seller_name_re = r'Seller Name:\s*(.+)\s*'
+    seller_id_re = r'Seller Id:\s*(.+)\s*'
+    buyer_name_re = r'Buyer Name:\s*(.+)\s*'
+    buyer_id_re = r'Buyer Id:\s*(.+)?\s*'
+    license_end_date_re = r'License End Date:\s*(.+)\s*'
+    brand_re = r'Brand:\s*(.+)\s*'
+    engine_re = r'Engine:\s*(.+)\s*'
+    color_re = r'Color:\s*(.+)\s*'
+    model_re = r'Model:\s*(.+)\s*'
+    money_amount_re = r'Mony Amount:\s*(.+)\s*'
+    governorate_re = r'Governorate:\s*(.+)\s*'
+    city_re = r'City:\s*(.+)\s*'
+    district_re = r'District:\s*(.+)\s*'
+    building_num_re = r'Building Num:\s*(.+)\s*'
+    apartment_num_re = r'Apartment Num:\s*(.+)\s*'
+    space_re = r'Space:\s*(.+)\s*'
+    northern_limit_re = r'Northern Limit:\s*(.+)\s*'
+    southern_limit_re = r'Southern Limit:\s*(.+)\s*'
+    eastern_limit_re = r'Eastern Limit:\s*(.+)\s*'
+    western_limit_re = r'Western Limit:\s*(.+)\s*'
+
+    # Search for specific patterns in the contract text
+    contract_type_match = re.search(contract_type_re, text)
+    startDate_match = re.search(startDate_re, text)
+    endDate_match = re.search(endDate_re, text)
+    VehicleId_match = re.search(VehicleId_re, text)
+    VehicleLicense_match = re.search(VehicleLicense_re, text)
+    seller_name_match = re.search(seller_name_re, text)
+    seller_id_match = re.search(seller_id_re, text)
+    buyer_name_match = re.search(buyer_name_re, text)
+    buyer_id_match = re.search(buyer_id_re, text)
+    license_end_date_match = re.search(license_end_date_re, text)
+    brand_match = re.search(brand_re, text)
+    engine_match = re.search(engine_re, text)
+    color_match = re.search(color_re, text)
+    model_match = re.search(model_re, text)
+    money_amount_match = re.search(money_amount_re, text)
+    governorate_match = re.search(governorate_re, text)
+    city_match = re.search(city_re, text)
+    district_match = re.search(district_re, text)
+    building_num_match = re.search(building_num_re, text)
+    apartment_num_match = re.search(apartment_num_re, text)
+    space_match = re.search(space_re, text)
+    northern_limit_match = re.search(northern_limit_re, text)
+    southern_limit_match = re.search(southern_limit_re, text)
+    eastern_limit_match = re.search(eastern_limit_re, text)
+    western_limit_match = re.search(western_limit_re, text)
+
+    # Extract the information from the contract text
+    contract_type = contract_type_match.group(1) if contract_type_match else ""
+    startDate = startDate_match.group(2).strip() if startDate_match else ""
+    endDate = endDate_match.group(1).strip() if endDate_match else ""
+    VehicleId = VehicleId_match.group(1).strip() if VehicleId_match else ""
+    VehicleLicense = VehicleLicense_match.group(1).strip() if VehicleLicense_match else ""
+    seller_name = seller_name_match.group(1).strip() if seller_name_match else ""
+    seller_id = seller_id_match.group(1).strip() if seller_id_match else ""
+    buyer_name = buyer_name_match.group(1).strip() if buyer_name_match else ""
+    buyer_id = buyer_id_match.group(1).strip() if buyer_id_match else ""
+    license_end_date = license_end_date_match.group(1).strip() if license_end_date_match else ""
+    brand = brand_match.group(1).strip() if brand_match else ""
+    engine = engine_match.group(1).strip() if engine_match else ""
+    color = color_match.group(1).strip() if color_match else ""
+    model = model_match.group(1).strip() if model_match else ""
+    money_amount = money_amount_match.group(1).strip() if money_amount_match else ""
+    governorate = governorate_match.group(1).strip() if governorate_match else ""
+    city = city_match.group(1).strip() if city_match else ""
+    district = district_match.group(1).strip() if district_match else ""
+    building_num = building_num_match.group(1).strip() if building_num_match else ""
+    apartment_num = apartment_num_match.group(1).strip() if apartment_num_match else ""
+    space = space_match.group(1).strip() if space_match else ""
+    northern_limit = northern_limit_match.group(1).strip() if northern_limit_match else ""
+    southern_limit = southern_limit_match.group(1).strip() if southern_limit_match else ""
+    eastern_limit = eastern_limit_match.group(1).strip() if eastern_limit_match else ""
+    western_limit = western_limit_match.group(1).strip() if western_limit_match else ""
+
+    # Return the extracted information for the contract
+    return jsonify({
+        'type': contract_type,
+        'startDate': startDate,
+        'endDate': endDate,
+        'VehicleId': VehicleId,
+        'VehicleLicense': VehicleLicense,
+        'firstParty': seller_name,
+        'firstPartId': seller_id,
+        'secondParty': buyer_name,
+        'secondPartId': buyer_id,
+        'VehicleEndDate': license_end_date,
+        'VehicleBrand': brand,
+        'VehicleEngine': engine,
+        'VehicleColor': color,
+        'VehicleModel': model,
+        'MonyAmount': money_amount,
+        'PropertyGovernorate': governorate,
+        'PropertyCity': city,
+        'PropertyDistrict': district,
+        'PropertyBuildingNum': building_num,
+        'PropertyApartmentNum': apartment_num,
+        'PropertySpace': space,
+        'PropertyNorth': northern_limit,
+        'PropertySouth': southern_limit,
+        'PropertyEast': eastern_limit,
+        'PropertyWest': western_limit,
+    }), 200
+
+
+@app.after_request
+def add_cors_headers(response):
+    response.headers.add('Access-Control-Allow-Origin', '*')
+    response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization')
+    response.headers.add('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE')
+    return response
+
+
+if __name__ == '__main__':
+    app.run(debug=True)
